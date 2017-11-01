@@ -15,8 +15,8 @@
     -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.min.js"></script>
     <script src="js/popper.js"></script>
+    <script src="js/bootstrap.min.js"></script>
   </head>
   <body>
 
@@ -64,13 +64,21 @@
         </div>
       </div>
 
-
-
     </main>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script>
+      $(document).ready(function() {
+        if(window.navigator.geolocation) {
+          window.navigator.geolocation.getCurrentPosition(function(pos) {
+            $.get('http://maps.googleapis.com/maps/api/geocode/json?latlng=' + pos.coords.latitude + ',' + pos.coords.longitude + '&sensor=true', function(data, status){
+              $('#zip-code').val(data.results[0].address_components[7].long_name);
+            });
+          });
+        }
+      });
+
       $("#zip-code").keyup(function(event) {
           if (event.keyCode === 13) {
               $("#go").click();
@@ -78,6 +86,32 @@
       });
 
       $("#go").click(function(){
+        // current data
+        var url_weather = "https://api.openweathermap.org/data/2.5/weather?zip=" + $('#zip-code').val() + "&appid=c2abeae755e331ef388663568b1d5ae1&units=imperial";
+        $.getJSON(url_weather, function(data) {
+          console.log(data);
+          console.log(data.main.temp);
+          var temp = data.main.temp;
+          var pressure = Math.round((data.main.pressure)*0.02953*100)/100;
+          var wind = data.wind.speed;
+          var cloud = data.clouds.all;
+
+          //$('#current-temp').text(temp + "°F");
+          //$('#current-weather').text(temp + "°F, " + pressure + " inHg, " + wind + "mph, " + cloud + "% cloud cover");
+
+          var current = '<div class="card mt-1"><div class="card-body"><h4 class="card-title" id="current-temp">Current Conditions</h4><p class="card-text" id="current-weather">' + temp + "°F, " + pressure + " inHg, " + wind + "mph, " + cloud + "% cloud cover" + '</p></div></div>';
+
+          $('#current-conditions').empty();
+
+          $("<div/>", {
+              "class":"container-fluid",
+              "id":"current-conditions",
+              html: current
+            }).appendTo("main");
+
+        });
+
+        // forecast data
         var url = "https://api.openweathermap.org/data/2.5/forecast?zip=" + $('#zip-code').val() + "&appid=c2abeae755e331ef388663568b1d5ae1&units=imperial";
         
         $.getJSON(url, function(data) {
@@ -110,7 +144,7 @@
               else
                 out_string = '<span class="badge badge-secondary">' + total_score + '</span>';
 
-              items.push('<div class="card mt-1"><div class="card-body"><h4 class="card-title">' + date.toLocaleString() + ": " + out_string + '</h4><p class="card-text">' + weather_data + '</p></div></div>');
+              items.push('<div class="card mt-1"><div class="card-body"><h5 class="card-title">' + date.toLocaleString() + ": " + out_string + '</h5><p class="card-text">' + weather_data + '</p></div></div>');
             });
 
             $('#results').empty();
