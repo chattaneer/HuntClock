@@ -95,13 +95,30 @@
           var pressure = Math.round((data.main.pressure)*0.02953*100)/100;
           var wind = data.wind.speed;
           var cloud = data.clouds.all;
+          
+          var wind_score = wind *100 / 25;
+          var pressure_score = 0;
+          if(pressure <= 30.4 && pressure >= 30.0)
+            pressure_score = 100;
+          else if(pressure <= 30.5 && pressure >= 29.6)
+            pressure_score = 50;
+          var temp_score = -15.0*temp/8.0 + 625.0/4.0;
+          var cloud_score = 100.0 - cloud;
+          var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/400);
 
-          //$('#current-temp').text(temp + "°F");
-          //$('#current-weather').text(temp + "°F, " + pressure + " inHg, " + wind + "mph, " + cloud + "% cloud cover");
-
-          var current = '<div class="card mt-1"><div class="card-body"><h4 class="card-title" id="current-temp">Current Conditions</h4><p class="card-text" id="current-weather">' + temp + "°F, " + pressure + " inHg, " + wind + "mph, " + cloud + "% cloud cover" + '</p></div></div>';
+          var out_string = "";
+          if(total_score > 75)
+            out_string = '<span class="badge badge-success">' + total_score + '</span>';
+          else if(total_score > 50)
+            out_string = '<span class="badge badge-warning">' + total_score + '</span>';
+          else if(total_score > 25)
+            out_string = '<span class="badge badge-danger">' + total_score + '</span>';
+          else
+            out_string = '<span class="badge badge-secondary">' + total_score + '</span>';
 
           $('#current-conditions').empty();
+
+          var current = '<div class="card mt-1"><div class="card-body"><h4 class="card-title" id="current-temp">Current Conditions ' + out_string + '</h4><p class="card-text" id="current-weather">' + temp + "°F, " + pressure + " inHg, " + wind + "mph, " + cloud + "% cloud cover" + '</p></div></div>';
 
           $("<div/>", {
               "class":"container-fluid",
