@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>HuntScore</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+      <a class="navbar-brand" href="#">HuntScore</a>
+      <!--
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Link</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#">Disabled</a>
+          </li>
+        </ul>
+        <form class="form-inline mt-2 mt-md-0">
+          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+      </div>
+    -->
+    </nav>
+
+    <main role="main" class="container">
+      <!--
+      <div class="jumbotron">
+        <h1>Navbar example</h1>
+        <p class="lead">This example is a quick exercise to illustrate how the top-aligned navbar works. As you scroll, this navbar remains in its original position and moves with the rest of the page.</p>
+        <a class="btn btn-lg btn-primary" href="../../components/navbar/" role="button">View navbar docs &raquo;</a>
+      </div>
+      -->
+      <div class="container-fluid">
+        <div class="input-group">
+          <span class="input-group-addon" id="basic-addon3">Zip Code</span>
+          <input type="text" class="form-control" id="zip-code" aria-describedby="basic-addon3">
+          <span class="input-group-btn">
+            <button class="btn btn-secondary" type="button" id="go">Go!</button>
+          </span>
+        </div>
+      </div>
+
+
+
+    </main>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script>
+      $("#zip-code").keyup(function(event) {
+          if (event.keyCode === 13) {
+              $("#go").click();
+          }
+      });
+
+      $("#go").click(function(){
+        var url = "http://api.openweathermap.org/data/2.5/forecast?zip=" + $('#zip-code').val() + "&appid=c2abeae755e331ef388663568b1d5ae1&units=imperial";
+        
+        $.getJSON(url, function(data) {
+            console.log(data);
+            var items = [];
+            $.each(data.list, function(key, val) {
+              var date = new Date(val.dt*1000);
+              var wind_score = val.wind.speed *100 / 25;
+              var pressure = Math.round((val.main.pressure)*0.02953*100)/100;
+              var pressure_score = 0;
+              if(pressure <= 30.4 && pressure >= 30.0)
+                pressure_score = 100;
+              else if(pressure <= 30.5 && pressure >= 29.6)
+                pressure_score = 50;
+              var temp = val.main.temp;
+              var temp_score = -15.0*temp/8.0 + 625.0/4.0;
+              var cloud_score = 100.0 - val.clouds.all;
+
+              var weather_data = val.main.temp + "°F, " + Math.round((val.main.pressure)*0.02953*100)/100 + " inHg, " + val.wind.speed + "mph @ " + val.wind.deg + ", " + val.clouds.all + "% cloud cover";
+
+              var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/400);
+
+              var out_string = "";
+              if(total_score > 75)
+                out_string = '<span class="badge badge-success">' + total_score + '</span>';
+              else if(total_score > 50)
+                out_string = '<span class="badge badge-warning">' + total_score + '</span>';
+              else if(total_score > 25)
+                out_string = '<span class="badge badge-danger">' + total_score + '</span>';
+              else
+                out_string = '<span class="badge badge-secondary">' + total_score + '</span>';
+
+              items.push('<div class="card mt-1"><div class="card-body"><h4 class="card-title">' + date.toLocaleString() + ": " + out_string + '</h4><p class="card-text">' + weather_data + '</p></div></div>');
+            });
+
+            $('#results').empty();
+
+            $("<div/>", {
+              "class":"container-fluid",
+              "id":"results",
+              html: items.join("")
+            }).appendTo("main");
+
+        });
+      });
+    </script>
+  </body>
+</html>
