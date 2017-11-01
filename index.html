@@ -90,7 +90,6 @@
         var url_weather = "https://api.openweathermap.org/data/2.5/weather?zip=" + $('#zip-code').val() + "&appid=c2abeae755e331ef388663568b1d5ae1&units=imperial";
         $.getJSON(url_weather, function(data) {
           console.log(data);
-          console.log(data.main.temp);
           var temp = data.main.temp;
           var pressure = Math.round((data.main.pressure)*0.02953*100)/100;
           var wind = data.wind.speed;
@@ -118,7 +117,7 @@
 
           $('#current-conditions').empty();
 
-          var current = '<div class="card mt-1"><div class="card-body"><h4 class="card-title" id="current-temp">Current Conditions ' + out_string + '</h4><p class="card-text" id="current-weather">' + temp + "°F, " + pressure + " inHg, " + wind + "mph, " + cloud + "% cloud cover" + '</p></div></div>';
+          var current = '<div class="card mt-1"><div class="card-body"><h4 class="card-title" id="current-temp">' + data.name + ' Conditions ' + out_string + '</h4><p class="card-text" id="current-weather">Temperature: ' + temp + "°F<br>Pressure: " + pressure + " inHg<br>Wind: " + wind + "mph<br>Cloud Cover: " + cloud + "% cloud cover" + '</p></div></div>';
 
           $("<div/>", {
               "class":"container-fluid",
@@ -132,7 +131,6 @@
         var url = "https://api.openweathermap.org/data/2.5/forecast?zip=" + $('#zip-code').val() + "&appid=c2abeae755e331ef388663568b1d5ae1&units=imperial";
         
         $.getJSON(url, function(data) {
-            console.log(data);
             var items = [];
             $.each(data.list, function(key, val) {
               var date = new Date(val.dt*1000);
