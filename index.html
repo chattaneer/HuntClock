@@ -115,7 +115,7 @@
           else
             out_string = '<span class="badge badge-secondary">' + total_score + '</span>';
 
-          $('#current-conditions').empty();
+          $('#current-conditions').remove();
 
           var current = '<div class="card mt-1"><div class="card-body"><h4 class="card-title" id="current-temp">' + data.name + ' Conditions ' + out_string + '</h4><p class="card-text" id="current-weather">Temperature: ' + temp + "°F<br>Pressure: " + pressure + " inHg<br>Wind: " + wind + "mph<br>Cloud Cover: " + cloud + "% cloud cover" + '</p></div></div>';
 
@@ -162,7 +162,7 @@
               items.push('<div class="card mt-1"><div class="card-body"><h5 class="card-title">' + date.toLocaleString() + ": " + out_string + '</h5><p class="card-text">' + weather_data + '</p></div></div>');
             });
 
-            $('#results').empty();
+            $('#results').remove();
 
             $("<div/>", {
               "class":"container-fluid",
