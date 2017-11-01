@@ -72,7 +72,7 @@
       $(document).ready(function() {
         if(window.navigator.geolocation) {
           window.navigator.geolocation.getCurrentPosition(function(pos) {
-            $.get('http://maps.googleapis.com/maps/api/geocode/json?latlng=' + pos.coords.latitude + ',' + pos.coords.longitude + '&sensor=true', function(data, status){
+            $.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + pos.coords.latitude + ',' + pos.coords.longitude + '&sensor=true', function(data, status){
               $('#zip-code').val(data.results[0].address_components[7].long_name);
             });
           });
