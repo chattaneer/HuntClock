@@ -9,8 +9,6 @@ function getMoonPhase(dt)
     var month = new Date(dt).getMonth() + 1;
     var day = new Date(dt).getDate();
 
-    console.log(month + '/' + day + '/' + year);
-
     var c = e = jd = b = 0;
 
     if (month < 3) {
