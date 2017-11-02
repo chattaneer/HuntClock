@@ -87,9 +87,14 @@
 
       $("#go").click(function(){
         // current data
+        $.ajaxSetup({
+            async: false
+        });
+        
         var url_weather = "https://api.openweathermap.org/data/2.5/weather?zip=" + $('#zip-code').val() + "&appid=c2abeae755e331ef388663568b1d5ae1&units=imperial";
         $.getJSON(url_weather, function(data) {
           console.log(data);
+          var date = new Date(data.dt*1000);
           var temp = data.main.temp;
           var pressure = Math.round((data.main.pressure)*0.02953*100)/100;
           var wind = data.wind.speed;
@@ -105,6 +110,13 @@
           var cloud_score = 100.0 - cloud;
           var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/400);
 
+          var moon = "";
+          var moon_url = "http://api.usno.navy.mil/moon/phase?date=" + date.toLocaleDateString() + "&nump=1"; 
+                  
+          $.getJSON(moon_url, function(data) {
+            moon = data.phasedata[0].phase;
+          });
+
           var out_string = "";
           if(total_score > 75)
             out_string = '<span class="badge badge-success">' + total_score + '</span>';
@@ -117,7 +129,7 @@
 
           $('#current-conditions').remove();
 
-          var current = '<div class="card mt-1"><div class="card-body"><h4 class="card-title" id="current-temp">' + data.name + ' Conditions ' + out_string + '</h4><p class="card-text" id="current-weather">Temperature: ' + temp + "°F<br>Pressure: " + pressure + " inHg<br>Wind: " + wind + "mph<br>Cloud Cover: " + cloud + "% cloud cover" + '</p></div></div>';
+          var current = '<div class="card mt-1"><div class="card-body"><h4 class="card-title" id="current-temp">' + data.name + ' Conditions ' + out_string + '</h4><p class="card-text" id="current-weather">Temperature: ' + temp + "°F<br>Pressure: " + pressure + " inHg<br>Wind: " + wind + "mph<br>Cloud Cover: " + cloud + "% cloud cover, " + moon + '</p></div></div>';
 
           $("<div/>", {
               "class":"container-fluid",
@@ -145,7 +157,14 @@
               var temp_score = -15.0*temp/8.0 + 625.0/4.0;
               var cloud_score = 100.0 - val.clouds.all;
 
-              var weather_data = val.main.temp + "°F, " + Math.round((val.main.pressure)*0.02953*100)/100 + " inHg, " + val.wind.speed + "mph @ " + val.wind.deg + ", " + val.clouds.all + "% cloud cover";
+              var moon = "";
+              var moon_url = "http://api.usno.navy.mil/moon/phase?date=" + date.toLocaleDateString() + "&nump=1";
+              
+              $.getJSON(moon_url, function(data) {
+                moon = data.phasedata[0].phase;
+              });
+
+              var weather_data = val.main.temp + "°F, " + Math.round((val.main.pressure)*0.02953*100)/100 + " inHg, " + val.wind.speed + "mph @ " + val.wind.deg + ", " + val.clouds.all + "% cloud cover, " + moon;
 
               var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/400);
 
