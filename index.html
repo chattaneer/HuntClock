@@ -156,7 +156,7 @@
 
               
               var moon = "";
-              var moon_url = "http://api.usno.navy.mil/moon/phase?date=" + date.toLocaleDateString() + "&nump=1";
+              var moon_url = "https://api.usno.navy.mil/moon/phase?date=" + date.toLocaleDateString() + "&nump=1";
               
               $.getJSON(moon_url, function(data) {
                 moon = data.phasedata[0].phase;
