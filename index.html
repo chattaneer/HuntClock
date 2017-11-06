@@ -75,13 +75,16 @@
           var wind = data.wind.speed;
           var cloud = data.clouds.all;
           
-          var wind_score = wind *100 / 25;
+          var wind_score = wind *100 / 10;
           var pressure_score = 0;
           if(pressure <= 30.4 && pressure >= 30.0)
             pressure_score = 100;
-          else if(pressure <= 30.5 && pressure >= 29.6)
-            pressure_score = 50;
-          var temp_score = -15.0*temp/8.0 + 625.0/4.0;
+          else if(pressure <= 30.5)
+            pressure_score = 75 + (30.5 - pressure)*250;
+          else if(pressure >= 29.6)
+            pressure_score = 75 + (pressure - 29.6)*62.5;
+          //var temp_score = -15.0*temp/8.0 + 625.0/4.0;
+          var temp_score = 100 * (temp / 90.0);
           var cloud_score = 100.0 - cloud;
           var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/400);
 
@@ -129,7 +132,7 @@
 
               var moon = getMoonPhase(date);
 
-              var weather_data = val.main.temp + "°F, " + Math.round((val.main.pressure)*0.02953*100)/100 + " inHg, " + val.wind.speed + "mph @ " + val.wind.deg + ", " + val.clouds.all + "% cloud cover, " + moon;
+              var weather_data = val.main.temp + "°F, " + Math.round((val.main.pressure)*0.02953*100)/100 + " inHg, " + val.wind.speed + "mph, " + val.clouds.all + "% cloud cover, " + moon;
 
               var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/400);
 
