@@ -128,13 +128,16 @@
                 pressure_score = 50;
               var temp = val.main.temp;
               var temp_score = -15.0*temp/8.0 + 625.0/4.0;
-              var cloud_score = 100.0 - val.clouds.all;
+              var cloud_score = 125.0 - val.clouds.all;
 
               var moon = getMoonPhase(date);
 
               var weather_data = val.main.temp + "°F, " + Math.round((val.main.pressure)*0.02953*100)/100 + " inHg, " + val.wind.speed + "mph, " + val.clouds.all + "% cloud cover, " + moon;
 
               var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/400);
+
+              if(total_score > 100) total_score = 100;
+              if(total_score < 0) total_score= 0;
 
               var out_string = "";
               if(total_score >= 75)
