@@ -137,11 +137,11 @@
               var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/400);
 
               var out_string = "";
-              if(total_score > 75)
+              if(total_score >= 75)
                 out_string = '<span class="badge badge-success">' + total_score + '</span>';
-              else if(total_score > 50)
+              else if(total_score >= 50)
                 out_string = '<span class="badge badge-warning">' + total_score + '</span>';
-              else if(total_score > 25)
+              else if(total_score >= 25)
                 out_string = '<span class="badge badge-danger">' + total_score + '</span>';
               else
                 out_string = '<span class="badge badge-secondary">' + total_score + '</span>';
