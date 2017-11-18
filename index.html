@@ -106,7 +106,7 @@
           else if(pressure >= 29.6 && pressure < 30.0)
             pressure_score = 75 + (pressure - 29.6)*62.5;
           //var temp_score = -15.0*temp/8.0 + 625.0/4.0;
-          var temp_score = 100 * (temp / 90.0);
+          var temp_score = 100 * (90 - temp) / 50;
           if(temp_score > 100) temp_score = 100;
           
           var cloud_score = 100.0 - cloud;
