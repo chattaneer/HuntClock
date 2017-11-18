@@ -95,15 +95,20 @@
           var cloud = data.clouds.all;
           
           var wind_score = wind *100 / 10;
+          if(wind_score > 100)
+            wind_score = 100;
+          
           var pressure_score = 0;
           if(pressure <= 30.4 && pressure >= 30.0)
             pressure_score = 100;
-          else if(pressure <= 30.5)
+          else if(pressure <= 30.5 && pressure > 30.4)
             pressure_score = 75 + (30.5 - pressure)*250;
-          else if(pressure >= 29.6)
+          else if(pressure >= 29.6 && pressure < 30.0)
             pressure_score = 75 + (pressure - 29.6)*62.5;
           //var temp_score = -15.0*temp/8.0 + 625.0/4.0;
           var temp_score = 100 * (temp / 90.0);
+          if(temp_score > 100) temp_score = 100;
+          
           var cloud_score = 100.0 - cloud;
           var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/400);
 
