@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="css/weather-icons.css"> 
   </head>
   <body>
 
@@ -79,11 +81,11 @@
 
       $("#go").click(function(){
         $('#welcome-message').remove();
-        
+
         // current data
         var url_weather = "https://api.openweathermap.org/data/2.5/weather?zip=" + $('#zip-code').val() + "&appid=c2abeae755e331ef388663568b1d5ae1&units=imperial";
         $.getJSON(url_weather, function(data) {
-          console.log(data);
+          
           var date = new Date(data.dt*1000);
           var temp = data.main.temp;
           var pressure = Math.round((data.main.pressure)*0.02953*100)/100;
@@ -106,8 +108,8 @@
           var temp_score = 100 * (90 - temp) / 50;
           if(temp_score > 100) temp_score = 100;
 
-          var cloud_score = 100.0 - cloud;
-          var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/400);
+          var cloud_score = (100.0 - cloud) * 50.0 / 100;
+          var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/350);
 
           var moon = getMoonPhase(date);
 
@@ -123,7 +125,7 @@
 
           $('#current-conditions').remove();
 
-          var current = '<div class="card mt-1"><div class="card-body"><h4 class="card-title" id="current-temp">' + data.name + ' Conditions ' + out_string + '</h4><p class="card-text" id="current-weather">Temperature: ' + temp + "°F</span><br>Pressure: " + pressure + " inHg<br>Wind: " + wind + "mph<br>Cloud Cover: " + cloud + "%<br>" + moon + '</p></div></div>';
+          var current = '<div class="card mt-1"><div class="card-body"><h4 class="card-title" id="current-temp">' + data.name + ' Conditions ' + out_string + '</h4><p class="card-text" id="current-weather"><i class="wi wi-thermometer"></i> ' + temp + '°F</span><br><i class="wi wi-barometer"></i> ' + pressure + ' inHg<br><i class="wi wi-strong-wind"></i> ' + wind + ' mph<br><i class="wi wi-cloud"></i> ' + cloud + '%<br><i class="wi wi-moon-alt-waxing-gibbous-4"></i> ' + moon + '</p></div></div>';
 
           $("<div/>", {
               "class":"container-fluid",
@@ -138,7 +140,7 @@
         
         $.getJSON(url, function(data) {
             var items = [];
-
+            
             $.each(data.list, function(key, val) {
               var date = new Date(val.dt*1000);
               var wind = val.wind.speed;
@@ -160,8 +162,8 @@
               var temp_score = 100 * (90 - temp) / 50;
               if(temp_score > 100) temp_score = 100;
 
-              var cloud_score = 100.0 - cloud;
-              var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/400);
+              var cloud_score = (100.0 - cloud) * 50.0 / 100;
+              var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/350);
 
               var moon = getMoonPhase(date);
 
@@ -171,7 +173,7 @@
 
               last_pressure = pressure;
 
-              var weather_data = val.main.temp + "°F, " + Math.round((val.main.pressure)*0.02953*100)/100 + " inHg " + pressure_icon + ", " + val.wind.speed + "mph, " + val.clouds.all + "% cloud cover, " + moon;
+              var weather_data = '<i class="wi wi-thermometer"></i> ' +  val.main.temp + '°F<br><i class="wi wi-barometer"></i> ' + Math.round((val.main.pressure)*0.02953*100)/100 + " inHg " + pressure_icon + '<br><i class="wi wi-strong-wind"></i> ' + val.wind.speed + ' mph<br><i class="wi wi-cloud"></i> ' + val.clouds.all + '%<br><i class="wi wi-moon-alt-waxing-gibbous-4"></i> ' + moon;
 
               if(total_score > 100) total_score = 100;
               if(total_score < 0) total_score= 0;
@@ -186,7 +188,7 @@
               else
                 out_string = '<span class="badge badge-secondary">' + total_score + '</span>';
 
-              items.push('<div class="card mt-1"><div class="card-body"><h5 class="card-title">' + date.toLocaleString() + " " + out_string + '</h5><p class="card-text">' + weather_data + '</p></div></div>');
+              items.push('<div class="card mt-1"><div class="card-body"><h5 class="card-title" data-toggle="collapse" data-target="#forecast-' + key + '" aria-expanded="false" aria-controls="forecast-' + key + '">' + date.toLocaleString() + " " + out_string + '</h5><p class="card-text collapse" id="forecast-' + key + '">' + weather_data + '</p></div></div>');
             });
 
             $('#results').remove();
