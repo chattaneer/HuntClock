@@ -9,10 +9,10 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
 
     <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One" rel="stylesheet">
-  
+
     <link rel="stylesheet" href="css/font.css">
 
-    <link rel="stylesheet" href="css/weather-icons.css"> 
+    <link rel="stylesheet" href="css/weather-icons.css">
   </head>
   <body>
 
@@ -40,12 +40,12 @@
     </nav>
 
     <main role="main" class="container">
-      
+
       <div class="jumbotron" id="welcome-message">
         <h1>Getting Started</h1>
         <p class="lead">This website is very easy to use. Simply enter your zip code below and click "Go!" The results will contain the current conditions and forecasts every 3 hours. Each forecast is given a score between 0 and 100 based on temperature, wind, pressure, and cloud cover. The better the score, the better the hunt.</p>
       </div>
-      
+
       <div class="container-fluid">
         <div class="input-group">
           <span class="input-group-addon" id="basic-addon3">Zip Code</span>
@@ -55,7 +55,7 @@
           </span>
         </div>
       </div>
-      
+
     </main>
 
     <script src="js/getMoonPhase.js"></script>
@@ -63,6 +63,7 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
 
     <script>
       $(document).ready(function() {
@@ -89,13 +90,13 @@
         // current data
         var url_weather = "https://api.openweathermap.org/data/2.5/weather?zip=" + $('#zip-code').val() + "&appid=c2abeae755e331ef388663568b1d5ae1&units=imperial";
         $.getJSON(url_weather, function(data) {
-          
+
           var date = new Date(data.dt*1000);
           var temp = data.main.temp;
           var pressure = Math.round((data.main.pressure)*0.02953*100)/100;
           var wind = data.wind.speed;
           var cloud = data.clouds.all;
-          
+
           last_pressure = pressure;
 
           var wind_score = wind * 100 / 10;
@@ -141,68 +142,167 @@
 
         // forecast data
         var url = "https://api.openweathermap.org/data/2.5/forecast?zip=" + $('#zip-code').val() + "&appid=c2abeae755e331ef388663568b1d5ae1&units=imperial";
-        
+        var temps = [];
+        var pressures = [];
+        var winds = [];
+        var clouds = [];
+        var scores = [];
+        var dates = [];
+
         $.getJSON(url, function(data) {
-            var items = [];
-            
-            $.each(data.list, function(key, val) {
-              var date = new Date(val.dt*1000);
-              var wind = val.wind.speed;
-              var pressure = Math.round((val.main.pressure)*0.02953*100)/100;
-              var temp = val.main.temp;
-              var cloud = val.clouds.all;
+          var items = [];
 
-              var wind_score = wind * 100 / 10;
-              if(wind_score > 100) wind_score = 100;
+          items.push('<div class="card mt-1"><div class="card-body"><p><canvas id="scoreChart" width="200" height="100"></canvas></p></div></div>');
 
-              var pressure_score = 0;
-              if(pressure <= 30.4 && pressure >= 30.0)
-                pressure_score = 100;
-              else if(pressure <= 30.5 && pressure > 30.4)
-                pressure_score = 75 + (30.5 - pressure)*250;
-              else if(pressure >= 29.6 && pressure < 30.0)
-                pressure_score = 75 + (pressure - 29.6)*62.5;
+          $.each(data.list, function(key, val) {
+            var date = new Date(val.dt*1000);
+            var wind = val.wind.speed;
+            var pressure = Math.round((val.main.pressure)*0.02953*100)/100;
+            var temp = val.main.temp;
+            var cloud = val.clouds.all;
 
-              var temp_score = 100 * (90 - temp) / 50;
-              if(temp_score > 100) temp_score = 100;
+            var wind_score = wind * 100 / 10;
+            if(wind_score > 100) wind_score = 100;
 
-              var cloud_score = (100.0 - cloud) * 50.0 / 100;
-              var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/350);
+            var pressure_score = 0;
+            if(pressure <= 30.4 && pressure >= 30.0)
+              pressure_score = 100;
+            else if(pressure <= 30.5 && pressure > 30.4)
+              pressure_score = 75 + (30.5 - pressure)*250;
+            else if(pressure >= 29.6 && pressure < 30.0)
+              pressure_score = 75 + (pressure - 29.6)*62.5;
 
-              var moon = getMoonPhase(date);
+            var temp_score = 100 * (90 - temp) / 50;
+            if(temp_score > 100) temp_score = 100;
 
-              var pressure_icon = "";
-              if(last_pressure > pressure) pressure_icon = '<i class="fa fa-long-arrow-down"></i>';
-              else pressure_icon = '<i class="fa fa-long-arrow-up""></i>';
+            var cloud_score = (100.0 - cloud) * 50.0 / 100;
+            var total_score = Math.round((temp_score + pressure_score + wind_score + cloud_score)*100/350);
 
-              last_pressure = pressure;
+            var moon = getMoonPhase(date);
 
-              var weather_data = '<i class="wi wi-thermometer"></i> ' +  val.main.temp + '°F<br><i class="wi wi-barometer"></i> ' + Math.round((val.main.pressure)*0.02953*100)/100 + " inHg " + pressure_icon + '<br><i class="wi wi-strong-wind"></i> ' + val.wind.speed + ' mph<br><i class="wi wi-cloud"></i> ' + val.clouds.all + '%<br><i class="wi wi-moon-alt-waxing-gibbous-4"></i> ' + moon;
+            var pressure_icon = "";
+            if(last_pressure > pressure) pressure_icon = '<i class="fa fa-long-arrow-down"></i>';
+            else pressure_icon = '<i class="fa fa-long-arrow-up""></i>';
 
-              if(total_score > 100) total_score = 100;
-              if(total_score < 0) total_score= 0;
+            last_pressure = pressure;
 
-              var out_string = "";
-              if(total_score >= 75)
-                out_string = '<span class="badge badge-success">' + total_score + '</span>';
-              else if(total_score >= 50)
-                out_string = '<span class="badge badge-warning">' + total_score + '</span>';
-              else if(total_score >= 25)
-                out_string = '<span class="badge badge-danger">' + total_score + '</span>';
-              else
-                out_string = '<span class="badge badge-secondary">' + total_score + '</span>';
+            var weather_data = '<i class="wi wi-thermometer"></i> ' +  val.main.temp + '°F<br><i class="wi wi-barometer"></i> ' + Math.round((val.main.pressure)*0.02953*100)/100 + " inHg " + pressure_icon + '<br><i class="wi wi-strong-wind"></i> ' + val.wind.speed + ' mph<br><i class="wi wi-cloud"></i> ' + val.clouds.all + '%<br><i class="wi wi-moon-alt-waxing-gibbous-4"></i> ' + moon;
 
-              items.push('<div class="card mt-1"><div class="card-body"><h5 class="card-title" data-toggle="collapse" data-target="#forecast-' + key + '" aria-expanded="false" aria-controls="forecast-' + key + '">' + date.toLocaleString() + " " + out_string + '</h5><p class="card-text collapse" id="forecast-' + key + '">' + weather_data + '</p></div></div>');
-            });
+            if(total_score > 100) total_score = 100;
+            if(total_score < 0) total_score= 0;
 
-            $('#results').remove();
+            var out_string = "";
+            if(total_score >= 75)
+              out_string = '<span class="badge badge-success">' + total_score + '</span>';
+            else if(total_score >= 50)
+              out_string = '<span class="badge badge-warning">' + total_score + '</span>';
+            else if(total_score >= 25)
+              out_string = '<span class="badge badge-danger">' + total_score + '</span>';
+            else
+              out_string = '<span class="badge badge-secondary">' + total_score + '</span>';
 
-            $("<div/>", {
-              "class":"container-fluid",
-              "id":"results",
-              html: items.join("")
-            }).appendTo("main");
+            dates.push(date.toLocaleString());
+            scores.push(total_score);
+            temps.push(temp);
+            winds.push(wind);
+            pressures.push(pressure);
+            clouds.push(cloud);
+            items.push('<div class="card mt-1"><div class="card-body"><h5 class="card-title" data-toggle="collapse" data-target="#forecast-' + key + '" aria-expanded="false" aria-controls="forecast-' + key + '">' + date.toLocaleString() + " " + out_string + '</h5><p class="card-text collapse" id="forecast-' + key + '">' + weather_data + '</p></div></div>');
+          });
 
+          $('#results').remove();
+
+          $("<div/>", {
+            "class":"container-fluid",
+            "id":"results",
+            html: items.join("")
+          }).appendTo("main");
+
+          console.log(scores);
+
+          var ctx = document.getElementById("scoreChart").getContext('2d');
+
+          var scoreChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: dates.slice(0, 16),
+              datasets: [{
+                label: 'Score',
+                data: scores,
+                backgroundColor: 'rgba(34,139,34,0.2)',
+                borderColor: 'rgba(34,139,34,1)',
+                yAxisID: 'y-axis-score'
+              }/*, {
+                label: 'Temperatures',
+                data: temps,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 0.5)',
+                yAxisID: 'y-axis-temp',
+                fill: false
+              }, {
+                label: 'Pressures',
+                data: pressures,
+                backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                borderColor: 'rgba(255, 206, 86, 0.5)',
+                yAxisID: 'y-axis-press',
+                fill: false
+              }, {
+                label: 'Winds',
+                data: winds,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 0.5)',
+                yAxisID: 'y-axis-wind',
+                fill: false
+              }, {
+                label: 'Clouds',
+                data: clouds,
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 0.5)',
+                yAxisID: 'y-axis-cloud',
+                fill: false
+              }*/]
+            },
+            options: {
+              scales: {
+                yAxes: [{
+                  position: 'left',
+                  ticks: {
+                    beginAtZero: true,
+                    max: 100
+                  },
+                  id: 'y-axis-score'
+                }, {
+                  display: false,
+                  ticks: {
+                    suggestedMin: 0,
+                    suggestedMax: 100
+                  },
+                  id: 'y-axis-temp'
+                }, {
+                  display: false,
+                  ticks: {
+                    suggestedMin: 28,
+                    suggestedMax: 32
+                  },
+                  id: 'y-axis-press'
+                }, {
+                  display: false,
+                  ticks: {
+                    suggestedMin: 0,
+                    suggestedMax: 10
+                  },
+                  id: 'y-axis-wind'
+                }, {
+                  display: false,
+                  ticks: {
+                    suggestedMin: 0,
+                    suggestedMax: 100
+                  },
+                  id: 'y-axis-cloud'
+                }]
+              }
+            }
+          });
         });
       });
     </script>
