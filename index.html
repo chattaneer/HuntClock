@@ -65,6 +65,27 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
 
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.3.0/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+         https://firebase.google.com/docs/web/setup#available-libraries -->
+
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyCc4d4YWJDtJyf0SZQcTfNW90XgpChe460",
+        authDomain: "huntclock.firebaseapp.com",
+        databaseURL: "https://huntclock.firebaseio.com",
+        projectId: "huntclock",
+        storageBucket: "huntclock.appspot.com",
+        messagingSenderId: "139439359525",
+        appId: "1:139439359525:web:a7ce55503453252d7f61cc"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    
     <script>
       $(document).ready(function() {
         if(window.navigator.geolocation) {
